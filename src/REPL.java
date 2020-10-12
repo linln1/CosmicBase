@@ -57,12 +57,10 @@ public class REPL {
             while (true) {
                 infoPrint.printPrompt();
                 inputBuffer.read();
-
-                if (inputBuffer.words[0] == ".exit") { // 推出执行
+                if (inputBuffer.words[0].equals(".exit")) { // 推出执行
                     inputBuffer.close(state.EXIT_SUCCESS);//正常退出
-
                 } else {
-                    System.out.println("UnRecognized Command " + inputBuffer.getReadFromConsole());
+                    System.out.println("UnRecognized Command '" + inputBuffer.getReadFromConsole() + "'");
                 }
             }
         }
