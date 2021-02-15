@@ -100,6 +100,7 @@ public class TableMgr{
 
 - parse 模块
 - plan 模块
+  - 所有的planner都是对应运算符，
 - record 模块
 - server 模块
 - log 模块

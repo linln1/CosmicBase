@@ -4,11 +4,7 @@ import file.*;
 import log.*;
 
 /**
- * A databuffer wraps a page and stores information
- * about its status, such as the associated disk clock,
- * the number of times the buffer has been pinned,
- * whether its contents have been modified,
- * and if so, the id and logSeqNum of the modifying transaction.
+ * 数据缓冲区，包装了Page，存储关于Page的信息，比如相关的硬盘始终，缓冲区被锁定的次数，内容是否被修改，如果是，就要记录id和修改事务的lsn
  * @ author linln
  */
 
@@ -24,29 +20,17 @@ public class Buffer {
 
     public Buffer() {}
 
-    /**
-     * A Constructor of Buffer
-     * @param fm FileManager
-     * @param lfm LogFileManager
-     * @return none
-     */
     public Buffer(FileManager fm, LogFileManager lfm){
         this.fm = fm;
         this.lfm = lfm;
         page = new Page(fm.getBlocksize());
     }
 
-    /**
-     * @return the page of this buffer.
-     */
-    public Page getPage(){
+    public synchronized Page getPage(){
         return page;
     }
 
-    /**
-     * @return the block of the page
-     */
-    public Block getBlk() {
+    public synchronized Block getBlk() {
         return blk;
     }
 
@@ -57,7 +41,7 @@ public class Buffer {
      */
     void flush(){
         if(this.modified >= 0){
-            //lfm.flush(logSeqNum);
+            lfm.flush(logSeqNum);
             fm.write(blk, page);
             modified = -1;
         }

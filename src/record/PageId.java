@@ -1,5 +1,8 @@
 package record;
 
+/**
+ * 用PageId来记录指定块中的特定位置
+ */
 public class PageId {
     private int Id;
     private int slot;
@@ -15,11 +18,11 @@ public class PageId {
         this.slot = Slot;
     }
 
-    public int getPageId(){
+    public synchronized int getPageId(){
         return this.Id;
     }
 
-    public int getSlot(){
+    public synchronized int getSlot(){
         return this.slot;
     }
 
@@ -37,6 +40,7 @@ public class PageId {
         }
     }
 
+    @Override
     public String toString(){
         return "[" + Id + ", " + slot + "]";
     }

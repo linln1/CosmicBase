@@ -13,12 +13,6 @@ public class BufferManager {
     private static final long MAX_TIME = 10000; //10 seconds
 
 
-    /**
-     * A Constructor of the BufferManager
-     * @param fm
-     * @param lfm
-     * @param bufNum
-     */
     public BufferManager(FileManager fm, LogFileManager lfm, int bufNum){
         bufpool = new Buffer[bufNum];
         AvNum = bufNum;
@@ -35,11 +29,7 @@ public class BufferManager {
         return AvNum;
     }
 
-    /**
-     * Commit all the dirty buffers modified by the specific transaction txnum
-     * @param txnum
-     */
-    public synchronized void CommitAll(int txnum){
+    public synchronized void flushAll(int txnum){
         for(Buffer buf: bufpool){
             if(buf.isModifiedBy(txnum)){
                 buf.flush();
@@ -47,11 +37,6 @@ public class BufferManager {
         }
     }
 
-    /**
-     * clear the bin of the specific buf.
-     * If its pincount goes to zero, then notifyAll the waiting threads.
-     * @param buf the buffer should be clear the pin.
-     */
     public synchronized void pinClear(Buffer buf){
         buf.pinsDec();
         if(!buf.isPinned()){
@@ -68,8 +53,9 @@ public class BufferManager {
     private Buffer find(Block blk){
         for(Buffer buf: bufpool){
             Block temp = buf.getBlk();
-            if(temp != null && temp.equals(blk))
+            if(temp != null && temp.equals(blk)) {
                 return buf;
+            }
         }
         return null;
     }
@@ -130,14 +116,13 @@ public class BufferManager {
                 wait(MAX_TIME);
                 buf = tryToPin(blk);
             }
-            if(buf == null)
+            if(buf == null) {
                 throw new BufferAbortException();
+            }
             return buf;
         }catch (InterruptedException e){
             throw new BufferAbortException();
         }
     }
-
-
 
 }

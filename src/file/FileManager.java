@@ -3,6 +3,10 @@ package file;
 import java.io.*;
 import java.util.*;
 
+/**
+ * 记录打开的所有文件及对应文件指针，类似于FAT
+ * 记录块大小
+ */
 public class FileManager{
     private File dbDirectory;
     private int blocksize;
@@ -21,12 +25,13 @@ public class FileManager{
         }
 
         for(String filename: dbDirectory.list()){
-            if(filename.startsWith("temp"))
+            if(filename.startsWith("temp")) {
                 new File(dbDirectory, filename).delete();
+            }
         }
     }
 
-    public int getBlocksize() {
+    public synchronized int getBlocksize() {
         return blocksize;
     }
 
@@ -48,7 +53,7 @@ public class FileManager{
             f.getChannel().write(p.contents());
         }
         catch (IOException e){
-            throw new RuntimeException("can't read block" + blk);
+            throw new RuntimeException("can't write block" + blk);
         }
     }
 

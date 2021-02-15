@@ -3,6 +3,11 @@ package file;
 import java.nio.ByteBuffer;
 import java.nio.charset.*;
 
+
+/**
+ * 一个Page封装一个ByteBuffer，一个Byte数组，使用US_ASCII标准字符集
+ * 做了一些改进，可以使用数据结构blob，还可以记录blob的长度
+ */
 public class Page {
     private ByteBuffer bb;
     private Byte[] blob;

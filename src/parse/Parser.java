@@ -2,6 +2,8 @@ package parse;
 
 import java.util.*;
 
+import query.Constant;
+import query.Expression;
 import query.Predicate;
 import query.Term;
 //import query.*;

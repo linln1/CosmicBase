@@ -1,6 +1,6 @@
 package excutor;
 
-import parse.Constant;
+import query.Constant;
 
 /**
  * The interface is the abstract Class of the other scanner

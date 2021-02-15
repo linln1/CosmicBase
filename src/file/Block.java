@@ -2,6 +2,9 @@ package file;
 
 import java.util.Objects;
 
+/**
+ * 记录对应的文件名，以及Block所连续分配的块数
+ */
 public class Block {
     private String filename;
     private int blknum;
@@ -11,11 +14,11 @@ public class Block {
         this.blknum = blknum;
     }
 
-    public String getFilename(){
+    public synchronized String getFilename(){
         return filename;
     }
 
-    public int getBlknum(){
+    public synchronized int getBlknum(){
         return blknum;
     }
 
