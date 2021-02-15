@@ -60,17 +60,17 @@ public class BTLeaf {
     }
 
     public DirEntry insert(RId datarid) {
-        if (contents.getFlag() >= 0 && contents.getDataVal(0).compareTo(searchkey) > 0) {
+        if (contents.getFlag() >= 0 && contents.getDataVal(0).compareTo(searchKey) > 0) {
             Constant firstval = contents.getDataVal(0);
-            BlockId newblk = contents.split(0, contents.getFlag());
+            Block newblk = contents.split(0, contents.getFlag());
             currentslot = 0;
             contents.setFlag(-1);
-            contents.insertLeaf(currentslot, searchkey, datarid);
-            return new DirEntry(firstval, newblk.number());
+            contents.insertLeaf(currentslot, searchKey, datarid);
+            return new DirEntry(firstval, newblk.getBlknum());
         }
 
         currentslot++;
-        contents.insertLeaf(currentslot, searchkey, datarid);
+        contents.insertLeaf(currentslot, searchKey, datarid);
         if (!contents.isFull())
             return null;
         // else page is full, so split it
@@ -78,8 +78,8 @@ public class BTLeaf {
         Constant lastkey  = contents.getDataVal(contents.getNumRecs()-1);
         if (lastkey.equals(firstkey)) {
             // create an overflow block to hold all but the first simpledb.record
-            BlockId newblk = contents.split(1, contents.getFlag());
-            contents.setFlag(newblk.number());
+            Block newblk = contents.split(1, contents.getFlag());
+            contents.setFlag(newblk.getBlknum());
             return null;
         }
         else {
@@ -87,27 +87,30 @@ public class BTLeaf {
             Constant splitkey = contents.getDataVal(splitpos);
             if (splitkey.equals(firstkey)) {
                 // move right, looking for the next key
-                while (contents.getDataVal(splitpos).equals(splitkey))
+                while (contents.getDataVal(splitpos).equals(splitkey)) {
                     splitpos++;
+                }
                 splitkey = contents.getDataVal(splitpos);
             }
             else {
                 // move left, looking for first entry having that key
-                while (contents.getDataVal(splitpos-1).equals(splitkey))
+                while (contents.getDataVal(splitpos-1).equals(splitkey)) {
                     splitpos--;
+                }
             }
-            BlockId newblk = contents.split(splitpos, -1);
-            return new DirEntry(splitkey, newblk.number());
+            Block newblk = contents.split(splitpos, -1);
+            return new DirEntry(splitkey, newblk.getBlknum());
         }
     }
 
-    private boolean tryOverflow() {
+    private boolean tryOverFlow() {
         Constant firstkey = contents.getDataVal(0);
         int flag = contents.getFlag();
-        if (!searchkey.equals(firstkey) || flag < 0)
+        if (!searchKey.equals(firstkey) || flag < 0) {
             return false;
+        }
         contents.close();
-        BlockId nextblk = new BlockId(filename, flag);
+        Block nextblk = new Block(filename, flag);
         contents = new BTPage(tx, nextblk, layout);
         currentslot = 0;
         return true;
