@@ -11,8 +11,8 @@ An implementation of SQL Database
 
 	-  undo log是回滚日志，其作用：提供回滚和多个行版本控制(MVCC)，逻辑日志。 
  -   redo log是前滚日志，提供前滚操作，物理日志。
-    	-  内存中的日志缓冲，易失性
-    	-  重做日志文件，日志是持久的 
+        	-  内存中的日志缓冲，易失性
+           	-  重做日志文件，日志是持久的 
 
 ![1613112701602](README.assets/1613112701602.png)
 
@@ -29,27 +29,28 @@ plan模块，每一个关系代数运算符有一个plan，有一个Scan，
 query模块，定义了查询需要的常量，对于关系代数中的语句，分别定义了三层数据结构来表示，从表达式=》term =》谓词
 
 /metadata
-Statinfo 
+MetaStat
 统计一个表的三种信息，块的数目，记录条数，每个域里不同取值的个数
 
 ```Java
-public class StatInfo{
+public class MetaStat{
     private int numBlock
     private int numRecs
 
     //类
-    public StatInfo(int numblocks, int numrecs);
+    public MetaStat(int numblocks, int numrecs);
     public int blocksAccessed();
     public int recordsOutput();
     public int distinctValue(String field);
 }
 ```
 
-Indexinfo
+MetaIndex
 关于索引的信息，被用在执行计划里，评估使用索引的代价，
 为了获得索引记录的分布，他的方法是和Plan一样的
+
 ```Java
-public class IndexInfo{
+public class MetaIndex{
     private String idxname, fldname;
     private Transaction tx;
     private Schema tblSchema;
@@ -100,15 +101,29 @@ public class TableMgr{
 
 - parse 模块
 - plan 模块
-  - 所有的planner都是对应运算符，
+  - 所有的planner都是对应关系代数算子，以及一个Scan
+  - Scan可以被用来组合创建一个query tree
 - record 模块
 - server 模块
+  - 服务器启动的时候，开启注册registry，然后才可以创建远程对象，将对象注册到registry管理的注册表中，注册表是一个Map类型的数据，方法的name参数是URL对象，obj是远程对象
+  - 调用远程对象服务的时候，运行业务逻辑代码。通过使用rmi包中的Naming类调用rebind(String, Remote)方法绑定一个远程对象到registry管理的注册表中
+  - client调用Naming类的lookup(String name)返回一个远程对象的代理, name必须是已注册的远程对象
+  - ![1613442914366](README.assets/1613442914366.png)
 - log 模块
+- connection 模块
+  - 使用适配器模式
+  - Driver，Connection，MetaData，ResultSet，Statement 接口+实现
+  - rmi远程接口继承Remote，Adapter实现java.sql.*中的对应接口
+- excutor模块
+  - 包含几个执行器接口Scan
+  - 以及不同关系代数对应执行器接口的实现
 - file 模块
   - FileMgr 有一个文件目录表，还有一个blocksie，应该是这个FileMgr管理的块的个数，有一个isNew标志，有一个openFiles(数据结构类型是map,类似于Windows的FAT)。
   - 读：根据文件对应的BlockId，可以找到它对应的文件f，跟据java.NIO，根据f的channel读取page里面的内容
   - Page数据结构，里面有ByteBuffer和Page绑定，通过offset可以获取ByteBuffer里面的内容
 - buffer 模块
+  - buffer就是类似于缓存的东西，负责缓冲写入磁盘之前的数据，也可以提升执行效率
+  - Page是在buffer上抽象出来的逻辑存储单位
   - buffer 会绑定 块，也就是pinned，对buffer进行读写的时候给块加锁，其中有sLock读锁(共享锁)/xLock(互斥锁)，还可以实现IS、IX等锁
   - 持久化就是将buffer里面的内容写入到Page里面，blksize就是页的大小，而id就是页号，每一个Page都对应一个BlockId，每个BlockId结构体里面有其所属的文件的文件名，以及连续分配的blknum
   - buffer里面有一个fileMgr，logFileMgr，绑定一个Page，绑定一个BlockId
@@ -123,21 +138,35 @@ public class TableMgr{
     - 把bucket打开，扫描键key，然后才能找到value，
 
 ## [To do List]
-    [x] DDL intepreter
-    [x] DML intepreter
-    [x] Optimizer
-    [x] MVCC
-    [x] Memory Controller
-    [x] Data persistence
-    [x] Reliability
-    [x] Log
-    [x] Roll back
-    [x] Transcation Controller
-    [x] Network Interface
+    SQL 语句不支持AS 
+    WHERE 语句中没有支持非等谓词判断
+    暂时没支持"*"
+    不支持null值
+    不支持不清晰的join
+    比支持union和except
+    不支持insert into
+    不支持order by排序
+    
+    rmi对象在服务器端产生的存根stub被打包成jar，客户端要与server建立连接，使用rmi，必须要将jar
+    下载到client端，这时候，server需要提供一个web接口，供client端下载jar包
 
 ## Function[]
 
+```
+[x] DDL intepreter
+[x] DML intepreter
+[x] Optimizer/Heuristic query
+[x] MVCC
+[x] Memory Controller
+[x] Data persistence
+[x] Reliability
+[x] Log
+[x] Roll back
+[x] Transcation Controller
+[ ] Network Interface
+```
 
+该数据库效率不高，其一是jvm平台造成的，另一方面是缺少更加严格的设计，以及编码水平能力局限。
 
 # MVCC
 

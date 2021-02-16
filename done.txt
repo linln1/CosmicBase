@@ -1,0 +1,16 @@
+宠物小精灵对战游戏
+	阅读Netty部分代码，实现了一个简单的NIO框架，借鉴Reactor模式，完成服务端设计，利用accept监听短链接登录请求，
+	创建线程+selector实现长连接同步非阻塞通信，通过condition variable实现异常退出重连。
+	阅读腾讯开源libco，参考实现线程池，能够应付中等水平并发服务。
+	设计json消息通讯格式
+	基于反射机制，实现简单的ROM框架
+	使用sqlite持久化服务
+	Qt实现界面，交互性良好
+
+2020 11.1 - 2021.2.1
+java完成一个简单的数据库，支持多版本并发控制，远程调用，数据持久化，支持事务回滚，查询语句简单优化，设计日志记录结构，实现btree/hash等index
+	参考java TokenStream实现简单的DDL intepreter
+	阅读java.nio代码，自己实现buffer/bufferpool用于内存和磁盘之间的缓存，提升数据库运行效率
+	阅读java.rmi代码，实现Remote接口和一系列Adapter，能够进行远程数据库接口调用
+	阅读redis代码，借鉴部分数据库设计思路
+	
